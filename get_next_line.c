@@ -96,6 +96,7 @@ int	get_next_line(const int fd, char **line)
     i++;
   ERROR(!(*line = ft_strnew(i)));
   *line = ft_strncpy(*line, list->content, i);
+  (*line)[i] = '\0';
   list->content = (char *)ft_memmove
       (list->content, (list->content) + i + 1, ft_strlen(list->content) - i + 1);
   if (!(((char *)(list->content))[0]))
