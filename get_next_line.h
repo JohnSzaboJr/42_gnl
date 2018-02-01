@@ -17,9 +17,9 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdlib.h>
-# define BUFF_SIZE 1
+# define BUFF_SIZE 10
 # define ERROR(x) if(x) return (-1)
 
-int	get_next_line(const int fd, char **line);
+int get_next_line(const int fd, char **line);
 
 #endif
