@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jszabo <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/02/02 10:05:04 by jszabo            #+#    #+#             */
+/*   Updated: 2018/02/02 16:48:02 by jszabo           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "./libft/libft.h"
 #include "get_next_line.h"
 //
@@ -5,52 +17,51 @@
 
 static char	*ft_read_file(const int fd, char *str, int *end)
 {
-  int size;
+	int size;
 
-  size = 0;
-  if (!(size = read(fd, str, BUFF_SIZE)))
-    *end = 1;
-  str[size] = '\0';
-  return (str);
+	size = 0;
+	if (!(size = read(fd, str, BUFF_SIZE)))
+		*end = 1;
+	if (size == -1)
+		return (0);
+	str[size] = '\0';
+	return (str);
 }
 
 static char	*ft_store_line(const int fd, int *end, char *str)
 {
   char	*new;
-  //  char	*saved;
+  char	*saved;
   int	j;
 
   j = 0;
   if (!(new = ft_strnew(BUFF_SIZE)))
     return (NULL);
-  if (!str)
+  if (!str[0])
     {
-    if (!(str = ft_strnew(BUFF_SIZE)))
-      return (NULL);
-    str = ft_read_file(fd, str, end);
+    if (!(str = ft_read_file(fd, str, end)))
+		return (0);
     }
   while (str[j] != '\n' && !*end)
     {
-      j++;
+       j++;
       if (!str[j])
-	{
-	  //	  printf("%s\n", str);
-	  new = ft_read_file(fd, new, end);
-     	  if (!(str = ft_strjoin(str, new)))
+	  {
+		if (!(new = ft_read_file(fd, new, end)))
+			return (NULL);
+     	  if (!(saved = ft_strjoin(str, new)))
      	    return (NULL);
-	  //	  ft_strdel(&str);
-	  //	  str = ft_strnew(ft_strlen(saved));
-	  //	  str = ft_strcpy(str, saved);
-	  //	  ft_strdel(&saved);
-	}
+	  	  free(str);
+	  	  str = ft_strnew(ft_strlen(saved));
+	  	  str = ft_strcpy(str, saved);
+	  	  free(saved);
+	  }
     }
   ft_strdel(&new);
-  if (str[ft_strlen(str) - 1] == '\n')
-    str[ft_strlen(str) - 1] = '\0';
   return (str);
 }
 
-int	get_next_line(const int fd, char **line)
+int			get_next_line(const int fd, char **line)
 {
   static t_list *list;
   t_list	*node;
@@ -62,11 +73,6 @@ int	get_next_line(const int fd, char **line)
   i = 0;
   node = NULL;
   prev = NULL;
-  //  if (list)
-  //    {
-  //      printf("str: ");
-  //      printf("%s\n", list->content);
-  //    }
   if (list)
     node = list;
   ERROR(BUFF_SIZE < 1 || fd < 0 || line == NULL);
@@ -86,7 +92,10 @@ int	get_next_line(const int fd, char **line)
 	ft_lstadd(&node, list);
       node = list;
     }
-  list->content = ft_store_line(fd, &end, list->content);
+  // this is what i changed
+  if (!(list->content))
+	  list->content = ft_strnew(BUFF_SIZE);
+  ERROR(!(list->content = ft_store_line(fd, &end, list->content)));
   if (end && !(((char *)(list->content))[0]))
     {
       *line = NULL;
@@ -97,17 +106,22 @@ int	get_next_line(const int fd, char **line)
   ERROR(!(*line = ft_strnew(i)));
   *line = ft_strncpy(*line, list->content, i);
   (*line)[i] = '\0';
-  list->content = (char *)ft_memmove
-      (list->content, (list->content) + i + 1, ft_strlen(list->content) - i + 1);
+  if (!(((char *)list->content)[i]))
+	  ((char *)(list->content))[0] = '\0';
+  else
+	  list->content = (char *)ft_memmove
+      (list->content, (list->content) + i + 1, ft_strlen(list->content) - i);
   if (!(((char *)(list->content))[0]))
       {
         if (node == list)
-  	{
-	  node = node->next;
-  	  free(list);
-  	  list = node;
-  	  return (1);
-  	}
+		{
+//			printf("hello");
+			node = node->next;
+			free(list->content);
+			free(list);
+			list = node;
+			return (1);
+		}
         else
        	{
       	  prev->next = list->next;
@@ -117,9 +131,8 @@ int	get_next_line(const int fd, char **line)
       }
   list = node;
   return (1);
-
-  // multiple fd
-  // big files
-  // segfaults the 42 tests... 
-  // leaks
 }
+
+// fix the leak some other way
+// check with huge buff size
+// check with one line no new line, or with new line

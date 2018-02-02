@@ -6,7 +6,7 @@
 /*   By: jszabo <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/12/21 15:20:40 by jszabo            #+#    #+#             */
-/*   Updated: 2018/01/23 13:59:58 by jszabo           ###   ########.fr       */
+/*   Updated: 2018/02/02 14:40:50 by jszabo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdlib.h>
-# define BUFF_SIZE 10
+# define BUFF_SIZE 1
 # define ERROR(x) if(x) return (-1)
 
 int get_next_line(const int fd, char **line);
