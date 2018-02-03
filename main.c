@@ -6,7 +6,7 @@
 /*   By: jszabo <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/23 14:04:53 by jszabo            #+#    #+#             */
-/*   Updated: 2018/02/02 12:51:20 by jszabo           ###   ########.fr       */
+/*   Updated: 2018/02/03 18:11:15 by jszabo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int         main(int argc, char **argv)
         return (0);
     fd = open(argv[1], O_RDONLY);
 //	fd2 = open(argv[2], O_RDONLY);
-   while (i < 8)
+   while (i < 7)
     {
         printf("%d\n", get_next_line(fd, &line));
         printf("%s\n", line);

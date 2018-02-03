@@ -6,7 +6,7 @@
 /*   By: jszabo <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/02 10:05:04 by jszabo            #+#    #+#             */
-/*   Updated: 2018/02/02 16:48:02 by jszabo           ###   ########.fr       */
+/*   Updated: 2018/02/03 19:03:15 by jszabo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static char	*ft_read_file(const int fd, char *str, int *end)
 	return (str);
 }
 
-static char	*ft_store_line(const int fd, int *end, char *str)
+static char *ft_store_line(const int fd, int *end, char *str)
 {
   char	*new;
   char	*saved;
@@ -36,25 +36,22 @@ static char	*ft_store_line(const int fd, int *end, char *str)
 
   j = 0;
   if (!(new = ft_strnew(BUFF_SIZE)))
-    return (NULL);
-  if (!str[0])
+	  return (NULL) ;
+  if (!(str)[0])
     {
     if (!(str = ft_read_file(fd, str, end)))
-		return (0);
+		return (NULL);
     }
-  while (str[j] != '\n' && !*end)
+  while ((str)[j] != '\n' && !*end)
     {
        j++;
-      if (!str[j])
+	   if (!str[j])
 	  {
-		if (!(new = ft_read_file(fd, new, end)))
-			return (NULL);
-     	  if (!(saved = ft_strjoin(str, new)))
-     	    return (NULL);
-	  	  free(str);
-	  	  str = ft_strnew(ft_strlen(saved));
-	  	  str = ft_strcpy(str, saved);
-	  	  free(saved);
+		  saved = str;
+		  new = ft_read_file(fd, new, end);
+		  if (!(str = ft_strjoin(str, new)))
+			  return (NULL);
+		  free(saved);
 	  }
     }
   ft_strdel(&new);
@@ -79,9 +76,9 @@ int			get_next_line(const int fd, char **line)
   while (list)
     {
       if (list->next && (list->next->content_size == (size_t)fd))
-	prev = list;
+		  prev = list;
       if (list->content_size == (size_t)fd)
-	break ;
+		  break ;
       list = list->next;
     }
   if (!list)
@@ -92,12 +89,12 @@ int			get_next_line(const int fd, char **line)
 	ft_lstadd(&node, list);
       node = list;
     }
-  // this is what i changed
   if (!(list->content))
 	  list->content = ft_strnew(BUFF_SIZE);
-  ERROR(!(list->content = ft_store_line(fd, &end, list->content)));
+  if (!(list->content = ft_store_line(fd, &end, list->content)))
+	  return (-1);
   if (end && !(((char *)(list->content))[0]))
-    {
+  {
       *line = NULL;
       return (0);
     }
@@ -111,11 +108,10 @@ int			get_next_line(const int fd, char **line)
   else
 	  list->content = (char *)ft_memmove
       (list->content, (list->content) + i + 1, ft_strlen(list->content) - i);
-  if (!(((char *)(list->content))[0]))
+  if (list && !(((char *)(list->content))[0]))
       {
         if (node == list)
 		{
-//			printf("hello");
 			node = node->next;
 			free(list->content);
 			free(list);
@@ -125,6 +121,7 @@ int			get_next_line(const int fd, char **line)
         else
        	{
       	  prev->next = list->next;
+		  free(list->content);
        	  free(list);
        	  list = NULL;
        	}
